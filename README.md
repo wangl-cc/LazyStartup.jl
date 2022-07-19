@@ -1,5 +1,9 @@
 # LazyStartup.jl
 
+[![Build Status](https://github.com/wangl-cc/LazyStartup.jl/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/wangl-cc/LazyStartup.jl/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/wangl-cc/LazyStartup.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/wangl-cc/LazyStartup.jl)
+[![GitHub](https://img.shields.io/github/license/wangl-cc/LazyStartup.jl)](https://github.com/wangl-cc/LazyStartup.jl/blob/master/LICENSE)
+
 A simple package provides a way to delay the execution of startup code until it is needed by REPL.
 It might be useful if loading `startup.jl` will take a long time.
 
