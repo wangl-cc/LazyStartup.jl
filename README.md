@@ -61,6 +61,7 @@ Patterns are generated automatically if not provided.
 | Expression | Pattern |
 | :--------- | :------ |
 | Declare variable: `v = 1` or `const v = 1` | Variable name `v` |
+| Function definition: `f() = 1` or `function f(); end` | Function name `f` |
 | Import modules: `import A` | Module name `A` |
 | Import submodule: `import A.B` | Submodule name `B` |
 | Import function: `import A.f` | Function name `f` |
