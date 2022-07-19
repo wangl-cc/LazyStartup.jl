@@ -1,7 +1,7 @@
 using Test
 using LazyStartup
 using LazyStartup: match_expr, auto_pattern, check_startup, STARTUPS
-using Base: isexpr
+using Base.Meta: isexpr
 
 macro test_auto_pattern(p, ex)
     auto_p = auto_pattern(ex)
