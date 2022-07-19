@@ -34,8 +34,8 @@ where `*` is a wildcard to match anything;
 if pattern is not provided, it will be generated automatically
 (rules for generating patterns see below).
 Here, the expression `using Revise` will be evaluated
-when `import`, `using` any module or `include` any file is called;
-and the expression `function f()` will be evaluated when it's used.
+when `import`, `using` any module or `include` any file;
+and the expression `function f() ...` will be evaluated when it's used.
 ```julia
 julia> isdefined(Main, :Revise)
 false
