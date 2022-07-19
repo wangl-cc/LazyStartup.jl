@@ -13,8 +13,6 @@ For a `startup.jl` file like this:
 ```julia
 using Revise
 
-const C = 1
-
 function f()
     # do something
 end
@@ -26,15 +24,18 @@ using LazyStartup # NOTE: this package must be loaded in startup.jl
 
 @lazy_startup using Revise import * using * include(*)
 
-@lazy_startup const C = 1
-
 @lazy_startup function f()
-    ...
+    # do something
 end
 ```
+The first argument of `@lazy_startup` is the expression to be evaluated,
+and rest of the arguments are patterns to match expressions input in the REPL,
+where `*` is a wildcard to match anything;
+if pattern is not provided, it will be generated automatically
+(rules for generating patterns see below).
 Here, the expression `using Revise` will be evaluated
 when `import`, `using` any module or `include` any file is called;
-and the expression `const C = 1`, and the expression `function f()` will be evaluated when it's used.
+and the expression `function f()` will be evaluated when it's used.
 ```julia
 julia> isdefined(Main, :Revise)
 false
@@ -42,15 +43,6 @@ false
 julia> using Test
 
 julia> isdefined(Main, :Revise)
-true
-
-julia> isdefined(Main, :C)
-false
-
-julia> C
-1
-
-julia> isdefined(Main, :C)
 true
 
 julia> isdefined(Main, :f)
@@ -62,8 +54,17 @@ julia> isdefined(Main, :f)
 true
 ```
 
-The first argument of `@lazy_startup` is the expression to be evaluated,
-and rest of the arguments are patterns to match expressions input in the REPL,
-where `*` is a wildcard to match anything;
-for variable or function definition,
-if pattern is not provided, it will be the name of the variable or function, (e.g. `C` and `f` in above example).
+## Default Pattern
+
+Patterns are generated automatically if not provided.
+
+| Expression | Pattern |
+| :--------- | :------ |
+| Declare variable: `v = 1` or `const v = 1` | Variable name `v` |
+| Function definition: `f() = 1` or `function f(); end` | Function name `f` |
+| Import modules: `import A` | Module name `A` |
+| Import submodule: `import A.B` | Submodule name `B` |
+| Import function: `import A.f` | Function name `f` |
+| Import and rename module: `import A as B` | Renamed module name `B` |
+| Import and rename function: `import A.f as g` or `import A: f as g` | Renamed function name `g` |
+| Others | A wildcard `*`|

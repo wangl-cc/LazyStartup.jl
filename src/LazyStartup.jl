@@ -62,6 +62,15 @@ function auto_pattern(ex::Expr)
         return auto_pattern(ex.args[1])
     elseif isexpr(ex, :(=))
         return _assignment_name(ex)
+    elseif isexpr(ex, :import)
+        arg1 = ex.args[1]
+        if isexpr(arg1, :(:))
+            return map(_import_name, arg1.args[2:end])
+        else
+            return map(_import_name, ex.args)
+        end
+    elseif isexpr(ex, :using, 1) && isexpr(ex.args[1], :(:))
+        return map(_import_name, ex.args[1].args[2:end])
     else
         return :* # * is wildcard which donate any symbol
     end
@@ -84,6 +93,10 @@ function _assignment_name(ex)
         return lhs.args
     end
 end
+
+# for A.B.C the args[end] is C;
+# for A.B as C the args[end] is C;
+_import_name(ex::Expr) = ex.args[end]::Symbol
 
 const STARTUPS = []
 
