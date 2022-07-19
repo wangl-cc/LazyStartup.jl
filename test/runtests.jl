@@ -97,11 +97,13 @@ end
         @test check_startup(Expr(:toplevel, :h)).args[1].args[1] == STARTUPS[6].ex
         @test is_evaled(STARTUPS[6])
         @test all(!is_evaled, STARTUPS[7:end])
-        @test check_startup(Expr(:toplevel, :Bar)).args[1].args[1] == STARTUPS[7].ex
-        @test is_evaled(STARTUPS[7])
-        @test all(!is_evaled, STARTUPS[8:end])
-        @test check_startup(Expr(:toplevel, :h1)).args[1].args[1] == STARTUPS[8].ex
-        @test is_evaled(STARTUPS[8])
-        @test all(!is_evaled, STARTUPS[9:end])
+        @static if VERSION >= v"1.6"
+            @test check_startup(Expr(:toplevel, :Bar)).args[1].args[1] == STARTUPS[7].ex
+            @test is_evaled(STARTUPS[7])
+            @test all(!is_evaled, STARTUPS[8:end])
+            @test check_startup(Expr(:toplevel, :h1)).args[1].args[1] == STARTUPS[8].ex
+            @test is_evaled(STARTUPS[8])
+            @test all(!is_evaled, STARTUPS[9:end])
+        end
     end
 end
