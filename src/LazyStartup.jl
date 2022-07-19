@@ -1,7 +1,7 @@
 module LazyStartup
 
 import REPL
-using Base: isexpr
+using Base.Meta: isexpr
 
 export @lazy_startup
 
