@@ -1,7 +1,7 @@
 module LazyStartup
 
 import REPL
-using Base: isexpr
+using Base.Meta: isexpr
 
 export @lazy_startup
 
@@ -78,7 +78,7 @@ end
 function _assignment_name(ex)
     lhs = ex.args[1]
     lhs isa Symbol && return lhs
-    if length(lhs.args) == 1 && Base.isexpr(lhs.args[1], :parameters)
+    if length(lhs.args) == 1 && isexpr(lhs.args[1], :parameters)
         return lhs.args[1].args
     else
         return lhs.args
