@@ -1,0 +1,16 @@
+name = "LazyStartup"
+uuid = "6f20d168-bb28-4f0e-934a-fbb9859c2f63"
+authors = ["Long Wang <wangl.cc@outlook.com>"]
+version = "0.1.0"
+
+[deps]
+REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+
+[compat]
+julia = "1.5"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

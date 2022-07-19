@@ -1,0 +1,4 @@
+always_for_in = true
+remove_extra_newlines = true
+whitespace_in_kwargs = false
+align_conditional = true
