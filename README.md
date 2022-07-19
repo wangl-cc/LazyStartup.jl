@@ -66,3 +66,4 @@ Patterns are generated automatically if not provided.
 | Import function: `import A.f` | Function name `f` |
 | Import and rename module: `import A as B` | Renamed module name `B` |
 | Import and rename function: `import A.f as g` or `import A: f as g` | Renamed function name `g` |
+| Others | A wildcard `*`|
