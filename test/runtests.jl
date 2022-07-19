@@ -43,17 +43,39 @@ end
         @test_auto_pattern [a, b] (; a, b) = (; a=1, b=2, c=3)
         @test_auto_pattern x const x = 1
         @test_auto_pattern [y, z] const (y, z) = (1, 1)
+        @test_auto_pattern [A] import A
+        @test_auto_pattern [B] import A.B
+        @test_auto_pattern [f] import A.f
+        @test_auto_pattern [f] import A: f
+        @test_auto_pattern [f] import A: f
+        @test_auto_pattern [f, g] import A: f, g
+        @test_auto_pattern [f, g] using A: f, g
+        @static if VERSION >= v"1.6"
+            # import A as B is supported after julia v1.6
+            @test_auto_pattern [B] import A as B
+            @test_auto_pattern [C] import A.B as C
+            @test_auto_pattern [g] import A.f as g
+            @test_auto_pattern [f1, g1] import A: f as f1, g as g1
+            @test_auto_pattern [f1, g1] using A: f as f1, g as g1
+        end
+        @test :* == auto_pattern(:(using A))
         @test :* == auto_pattern(:())
     end
 
     @testset "check_startup" begin
         @lazy_startup f() = 1
         @lazy_startup const A = 1
-        @lazy_startup using Revise using * include
+        @lazy_startup using Revise using * include(*)
         @lazy_startup begin
             g(::Int) = 1
             g(::Real) = 1.0
         end g
+        @lazy_startup import Foo
+        @lazy_startup import Foo: h
+        @static if VERSION >= v"1.6"
+            @lazy_startup import Foo as Bar
+            @lazy_startup import Foo: h as h1
+        end
         is_evaled(s) = s.evaled
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
         @test all(!is_evaled, STARTUPS)
@@ -69,5 +91,17 @@ end
         @test check_startup(Expr(:toplevel, :g)).args[1].args[1] == STARTUPS[4].ex
         @test is_evaled(STARTUPS[4])
         @test all(!is_evaled, STARTUPS[5:end])
+        @test check_startup(Expr(:toplevel, :Foo)).args[1].args[1] == STARTUPS[5].ex
+        @test is_evaled(STARTUPS[5])
+        @test all(!is_evaled, STARTUPS[6:end])
+        @test check_startup(Expr(:toplevel, :h)).args[1].args[1] == STARTUPS[6].ex
+        @test is_evaled(STARTUPS[6])
+        @test all(!is_evaled, STARTUPS[7:end])
+        @test check_startup(Expr(:toplevel, :Bar)).args[1].args[1] == STARTUPS[7].ex
+        @test is_evaled(STARTUPS[7])
+        @test all(!is_evaled, STARTUPS[8:end])
+        @test check_startup(Expr(:toplevel, :h1)).args[1].args[1] == STARTUPS[8].ex
+        @test is_evaled(STARTUPS[8])
+        @test all(!is_evaled, STARTUPS[9:end])
     end
 end
