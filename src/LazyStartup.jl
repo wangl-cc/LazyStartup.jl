@@ -116,12 +116,8 @@ end
 """
     @lazy_startup ex patterns...
 
-Make given expression `ex` don't evaluate until the `patterns` are matched.
-The `patterns` are used to determine when to evaluate the expression.
+Delay the execution of the given expression `ex` until inputs in REPL match `patterns`.
 If `patterns` is not given, the pattern will be determined automatically:
-for a function definition, it will be the function name;
-for an assignment, it will be the variable name;
-for others, it will `*`, where symbol `*` can be used as a wildcard to match anything.
 """
 macro lazy_startup(ex, ps...)
     if isempty(ps)
