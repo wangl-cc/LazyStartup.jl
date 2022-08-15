@@ -71,13 +71,15 @@ function auto_pattern(ex::Expr)
         end
     elseif isexpr(ex, :using, 1) && isexpr(ex.args[1], :(:))
         return map(_import_name, ex.args[1].args[2:end])
+    elseif isexpr(ex, :macro)
+        return Symbol("@$(_function_name(ex))")
     else
         return :* # * is wildcard which donate any symbol
     end
 end
 
 function _function_name(ex)
-    if isexpr(ex, [:function, :(=), :where])
+    if isexpr(ex, [:function, :macro, :(=), :where])
         return _function_name(ex.args[1])
     else # isexpr(ex, :call)
         return ex.args[1]
@@ -113,17 +115,35 @@ function check_startup(ex)
     return ex
 end
 
+function collect_pattern(ps)
+    ret = Vector{Any}(undef, length(ps))
+    for i in eachindex(ps)
+        ret[i] = _maybe_to_symbol(ps[i])
+    end
+    return ret
+end
+
+function _maybe_to_symbol(@nospecialize ex)
+    if isexpr(ex, :call, 2) && ex.args[1] === :Symbol && ex.args[2] isa String
+        return Symbol(ex.args[2])
+    else
+        return ex
+    end
+end
+
 """
     @lazy_startup ex patterns...
 
 Delay the execution of the given expression `ex` until inputs in REPL match `patterns`.
-If `patterns` is not given, the pattern will be determined automatically:
+If the given pattern is a macro like `@btime`, the pattern should be `Symbol("@btime")`.
+If `patterns` is not given, the pattern will be determined automatically.
+Details of default pattern, see README.md.
 """
 macro lazy_startup(ex, ps...)
     if isempty(ps)
         pattern = auto_pattern(ex)
     else
-        pattern = collect(ps)
+        pattern = collect_pattern(ps)
     end
     startup = Startup(ex, pattern)
     push!(STARTUPS, startup)

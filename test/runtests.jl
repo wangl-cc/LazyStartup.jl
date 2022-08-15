@@ -7,6 +7,8 @@ macro test_auto_pattern(p, ex)
     auto_p = auto_pattern(ex)
     if isexpr(p, :vect)
         return :(@test $(p.args == auto_p))
+    elseif isexpr(p, :call, 2) && p.args[1] === :Symbol && p.args[2] isa String
+        return :(@test $(Symbol(p.args[2]) == auto_p))
     else
         return :(@test $(p == auto_p))
     end
@@ -38,6 +40,7 @@ end
     @testset "auto_pattern" begin
         @test_auto_pattern f f() = 1
         @test_auto_pattern f function f(); 1; end
+        @test_auto_pattern Symbol("@foo") macro foo() end
         @test_auto_pattern x x = 1
         @test_auto_pattern [y, z] (y, z) = (1, 1)
         @test_auto_pattern [a, b] (; a, b) = (; a=1, b=2, c=3)
@@ -76,6 +79,13 @@ end
             @lazy_startup import Foo as Bar
             @lazy_startup import Foo: h as h1
         end
+        # issue #4
+        @lazy_startup using BenchmarkTools Symbol("@btime")
+        @lazy_startup macro showall(expr)
+            return quote
+                show(IOContext(stdout, :compact => false, :limit => false), "text/plain", $(esc(expr)))
+            end
+        end
         is_evaled(s) = s.evaled
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
         @test all(!is_evaled, STARTUPS)
@@ -105,5 +115,12 @@ end
             @test is_evaled(STARTUPS[8])
             @test all(!is_evaled, STARTUPS[9:end])
         end
+        # issue #4
+        @test check_startup(Expr(:toplevel, :(@btime 1))).args[1].args[1] == STARTUPS[9].ex
+        @test is_evaled(STARTUPS[9])
+        @test all(!is_evaled, STARTUPS[10:end])
+        @test check_startup(Expr(:toplevel, :(@showall 1))).args[1].args[1] == STARTUPS[10].ex
+        @test is_evaled(STARTUPS[10])
+        @test all(!is_evaled, STARTUPS[11:end])
     end
 end
