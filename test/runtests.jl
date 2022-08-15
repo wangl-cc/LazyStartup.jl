@@ -7,6 +7,8 @@ macro test_auto_pattern(p, ex)
     auto_p = auto_pattern(ex)
     if isexpr(p, :vect)
         return :(@test $(p.args == auto_p))
+    elseif isexpr(p, :call, 2) && p.args[1] === :Symbol && p.args[2] isa String
+        return :(@test $(Symbol(p.args[2]) == auto_p))
     else
         return :(@test $(p == auto_p))
     end
@@ -38,6 +40,7 @@ end
     @testset "auto_pattern" begin
         @test_auto_pattern f f() = 1
         @test_auto_pattern f function f(); 1; end
+        @test_auto_pattern Symbol("@foo") macro foo() end
         @test_auto_pattern x x = 1
         @test_auto_pattern [y, z] (y, z) = (1, 1)
         @test_auto_pattern [a, b] (; a, b) = (; a=1, b=2, c=3)
@@ -72,6 +75,13 @@ end
         end g
         @lazy_startup import Foo
         @lazy_startup import Foo: h
+        # issue #4
+        @lazy_startup using BenchmarkTools Symbol("@btime")
+        @lazy_startup macro showall(expr)
+            return quote
+                show(IOContext(stdout, :compact => false, :limit => false), "text/plain", $(esc(expr)))
+            end
+        end
         @static if VERSION >= v"1.6"
             @lazy_startup import Foo as Bar
             @lazy_startup import Foo: h as h1
@@ -79,31 +89,18 @@ end
         is_evaled(s) = s.evaled
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
         @test all(!is_evaled, STARTUPS)
-        @test check_startup(Expr(:toplevel, :f)).args[1].args[1] == STARTUPS[1].ex
-        @test is_evaled(STARTUPS[1])
-        @test all(!is_evaled, STARTUPS[2:end])
-        @test check_startup(Expr(:toplevel, :A)).args[1].args[1] == STARTUPS[2].ex
-        @test is_evaled(STARTUPS[2])
-        @test all(!is_evaled, STARTUPS[3:end])
-        @test check_startup(Expr(:toplevel, :(using Test))).args[1].args[1] == STARTUPS[3].ex
-        @test is_evaled(STARTUPS[3])
-        @test all(!is_evaled, STARTUPS[4:end])
-        @test check_startup(Expr(:toplevel, :g)).args[1].args[1] == STARTUPS[4].ex
-        @test is_evaled(STARTUPS[4])
-        @test all(!is_evaled, STARTUPS[5:end])
-        @test check_startup(Expr(:toplevel, :Foo)).args[1].args[1] == STARTUPS[5].ex
-        @test is_evaled(STARTUPS[5])
-        @test all(!is_evaled, STARTUPS[6:end])
-        @test check_startup(Expr(:toplevel, :h)).args[1].args[1] == STARTUPS[6].ex
-        @test is_evaled(STARTUPS[6])
-        @test all(!is_evaled, STARTUPS[7:end])
+        test_exprs = [
+            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(@showall 1)
+        ]
         @static if VERSION >= v"1.6"
-            @test check_startup(Expr(:toplevel, :Bar)).args[1].args[1] == STARTUPS[7].ex
-            @test is_evaled(STARTUPS[7])
-            @test all(!is_evaled, STARTUPS[8:end])
-            @test check_startup(Expr(:toplevel, :h1)).args[1].args[1] == STARTUPS[8].ex
-            @test is_evaled(STARTUPS[8])
-            @test all(!is_evaled, STARTUPS[9:end])
+            push!(test_exprs, :Bar, :h1)
+        end
+        @test length(STARTUPS) == length(test_exprs)
+        for expr in test_exprs
+            @test check_startup(Expr(:toplevel, expr)).args[1].args[1] == STARTUPS[1].ex
+            @test is_evaled(STARTUPS[1])
+            popfirst!(STARTUPS)
+            @test all(!is_evaled, STARTUPS)
         end
     end
 end
