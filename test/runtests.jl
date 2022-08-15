@@ -89,38 +89,18 @@ end
         is_evaled(s) = s.evaled
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
         @test all(!is_evaled, STARTUPS)
-        @test check_startup(Expr(:toplevel, :f)).args[1].args[1] == STARTUPS[1].ex
-        @test is_evaled(STARTUPS[1])
-        @test all(!is_evaled, STARTUPS[2:end])
-        @test check_startup(Expr(:toplevel, :A)).args[1].args[1] == STARTUPS[2].ex
-        @test is_evaled(STARTUPS[2])
-        @test all(!is_evaled, STARTUPS[3:end])
-        @test check_startup(Expr(:toplevel, :(using Test))).args[1].args[1] == STARTUPS[3].ex
-        @test is_evaled(STARTUPS[3])
-        @test all(!is_evaled, STARTUPS[4:end])
-        @test check_startup(Expr(:toplevel, :g)).args[1].args[1] == STARTUPS[4].ex
-        @test is_evaled(STARTUPS[4])
-        @test all(!is_evaled, STARTUPS[5:end])
-        @test check_startup(Expr(:toplevel, :Foo)).args[1].args[1] == STARTUPS[5].ex
-        @test is_evaled(STARTUPS[5])
-        @test all(!is_evaled, STARTUPS[6:end])
-        @test check_startup(Expr(:toplevel, :h)).args[1].args[1] == STARTUPS[6].ex
-        @test is_evaled(STARTUPS[6])
-        @test all(!is_evaled, STARTUPS[7:end])
-        # issue #4
-        @test check_startup(Expr(:toplevel, :(@btime 1))).args[1].args[1] == STARTUPS[7].ex
-        @test is_evaled(STARTUPS[7])
-        @test all(!is_evaled, STARTUPS[8:end])
-        @test check_startup(Expr(:toplevel, :(@showall 1))).args[1].args[1] == STARTUPS[8].ex
-        @test is_evaled(STARTUPS[8])
-        @test all(!is_evaled, STARTUPS[9:end])
+        test_exprs = [
+            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(@showall 1)
+        ]
         @static if VERSION >= v"1.6"
-            @test check_startup(Expr(:toplevel, :Bar)).args[1].args[1] == STARTUPS[9].ex
-            @test is_evaled(STARTUPS[9])
-            @test all(!is_evaled, STARTUPS[10:end])
-            @test check_startup(Expr(:toplevel, :h1)).args[1].args[1] == STARTUPS[10].ex
-            @test is_evaled(STARTUPS[10])
-            @test all(!is_evaled, STARTUPS[11:end])
+            push!(test_exprs, :Bar, :h1)
+        end
+        @test length(STARTUPS) == length(test_exprs)
+        for expr in test_exprs
+            @test check_startup(Expr(:toplevel, expr)).args[1].args[1] == STARTUPS[1].ex
+            @test is_evaled(STARTUPS[1])
+            popfirst!(STARTUPS)
+            @test all(!is_evaled, STARTUPS)
         end
     end
 end
