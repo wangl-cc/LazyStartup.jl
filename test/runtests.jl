@@ -75,16 +75,16 @@ end
         end g
         @lazy_startup import Foo
         @lazy_startup import Foo: h
-        @static if VERSION >= v"1.6"
-            @lazy_startup import Foo as Bar
-            @lazy_startup import Foo: h as h1
-        end
         # issue #4
         @lazy_startup using BenchmarkTools Symbol("@btime")
         @lazy_startup macro showall(expr)
             return quote
                 show(IOContext(stdout, :compact => false, :limit => false), "text/plain", $(esc(expr)))
             end
+        end
+        @static if VERSION >= v"1.6"
+            @lazy_startup import Foo as Bar
+            @lazy_startup import Foo: h as h1
         end
         is_evaled(s) = s.evaled
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
@@ -107,20 +107,20 @@ end
         @test check_startup(Expr(:toplevel, :h)).args[1].args[1] == STARTUPS[6].ex
         @test is_evaled(STARTUPS[6])
         @test all(!is_evaled, STARTUPS[7:end])
-        @static if VERSION >= v"1.6"
-            @test check_startup(Expr(:toplevel, :Bar)).args[1].args[1] == STARTUPS[7].ex
-            @test is_evaled(STARTUPS[7])
-            @test all(!is_evaled, STARTUPS[8:end])
-            @test check_startup(Expr(:toplevel, :h1)).args[1].args[1] == STARTUPS[8].ex
-            @test is_evaled(STARTUPS[8])
-            @test all(!is_evaled, STARTUPS[9:end])
-        end
         # issue #4
-        @test check_startup(Expr(:toplevel, :(@btime 1))).args[1].args[1] == STARTUPS[9].ex
-        @test is_evaled(STARTUPS[9])
-        @test all(!is_evaled, STARTUPS[10:end])
-        @test check_startup(Expr(:toplevel, :(@showall 1))).args[1].args[1] == STARTUPS[10].ex
-        @test is_evaled(STARTUPS[10])
-        @test all(!is_evaled, STARTUPS[11:end])
+        @test check_startup(Expr(:toplevel, :(@btime 1))).args[1].args[1] == STARTUPS[7].ex
+        @test is_evaled(STARTUPS[7])
+        @test all(!is_evaled, STARTUPS[8:end])
+        @test check_startup(Expr(:toplevel, :(@showall 1))).args[1].args[1] == STARTUPS[8].ex
+        @test is_evaled(STARTUPS[8])
+        @test all(!is_evaled, STARTUPS[9:end])
+        @static if VERSION >= v"1.6"
+            @test check_startup(Expr(:toplevel, :Bar)).args[1].args[1] == STARTUPS[9].ex
+            @test is_evaled(STARTUPS[9])
+            @test all(!is_evaled, STARTUPS[10:end])
+            @test check_startup(Expr(:toplevel, :h1)).args[1].args[1] == STARTUPS[10].ex
+            @test is_evaled(STARTUPS[10])
+            @test all(!is_evaled, STARTUPS[11:end])
+        end
     end
 end
