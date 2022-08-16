@@ -51,15 +51,14 @@ jobs:
       - uses: codecov/codecov-action@v2
         with:
           file: ./lcov.info
-      - name: Create startup.jl
+      - name: Prepare for Benchmark
         run: |
           mkdir -p $HOME/.julia/config
           echo "using LazyStartup" > $HOME/.julia/config/startup.jl
-      - name: Install Revise
-        run: |
-          import Pkg; Pkg.add(["Revise"])
-        shell: julia --startup-file=no --color=yes {0}
-      - name: Benchmark
+          julia --startup-file=no 'import Pkg; Pkg.add(["Revise"])'
+          julia --project=.  -e 'using Revise'
+        shell: bash
+      - name: Run Benchmark
         run: |
           julia --project=.  -e 'using Revise'
           time julia --project=. --startup-file=no -e 'using Revise'
