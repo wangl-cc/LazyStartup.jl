@@ -54,6 +54,10 @@ julia> isdefined(Main, :f)
 true
 ```
 
+**Limitation**: Using this package may increase startup time by about 0.1-0.5 seconds (compile time).
+Therefore this package is only recommended for code that significantly affects startup time,
+such as loading packages.
+
 ## Define Pattern
 
 There are some examples for how to define patterns:
