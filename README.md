@@ -54,9 +54,38 @@ julia> isdefined(Main, :f)
 true
 ```
 
+## Define Pattern
+
+There are some examples for how to define patterns:
+```julia
+using LazyStartup
+
+# match import, using, and function call
+@lazy_startup using Revise import * using * include(*)
+# match symbol
+@lazy_startup begin
+  const FOO = 1
+  foo(::Any) = FOO + 1
+end foo
+# match function call, the brackets are required
+# without brackets, the pattern will be a symbol
+@lazy_startup begin
+  bar(::Any) = 1
+  bar(::Int) = 2
+end bar()
+# match macro call, the brackets are optional for single pattern
+# but required for multiple patterns
+@lazy_startup using Test @test
+@lazy_startup using BenchmarkTools @btime() @benchmark()
+```
+
+**NOTE**: The pattern matching is not sensitive for order and number of arguments.
+Thus, `bar()` will match `bar()`, `bar(x)`, `bar(x, y)`, and with more arguments.
+Similarly, `@test` will match `@test`, `@test x`, `@test x y`, and with more arguments.
+
 ## Default Pattern
 
-Patterns are generated automatically if not provided.
+If pattern is not provided, patterns will be generated automatically.
 
 | Expression | Pattern |
 | :--------- | :------ |
@@ -69,3 +98,6 @@ Patterns are generated automatically if not provided.
 | Import and rename module: `import A as B` | Renamed module name `B` |
 | Import and rename function: `import A.f as g` or `import A: f as g` | Renamed function name `g` |
 | Others | A wildcard `*`|
+
+For other expressions, the pattern wildcard `*` will match anything,
+which means that the expression will evaluate after any input in the REPL.
