@@ -67,10 +67,21 @@ using LazyStartup
   const FOO = 1
   foo(::Any) = FOO + 1
 end foo
-# match macro call, the brackets are required for multiple patterns
+# match function call, the brackets are required
+# without brackets, the pattern will be a symbol
+@lazy_startup begin
+  bar(::Any) = 1
+  bar(::Int) = 2
+end bar()
+# match macro call, the brackets are optional for single pattern
+# but required for multiple patterns
 @lazy_startup using Test @test
 @lazy_startup using BenchmarkTools @btime() @benchmark()
 ```
+
+**NOTE**: The pattern matching is not sensitive for order and number of arguments.
+Thus, `bar()` will match `bar()`, `bar(x)`, `bar(x, y)`, and with more arguments.
+Similarly, `@test` will match `@test`, `@test x`, `@test x y`, and with more arguments.
 
 ## Default Pattern
 
