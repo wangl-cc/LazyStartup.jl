@@ -77,6 +77,7 @@ end
         @lazy_startup import Foo: h
         # issue #4
         @lazy_startup using BenchmarkTools Symbol("@btime")
+        @lazy_startup using Unitful @u_str
         @lazy_startup macro showall(expr)
             return quote
                 show(IOContext(stdout, :compact => false, :limit => false), "text/plain", $(esc(expr)))
@@ -90,7 +91,7 @@ end
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
         @test all(!is_evaled, STARTUPS)
         test_exprs = [
-            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(@showall 1)
+            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(u"bohr"), :(@showall 1)
         ]
         @static if VERSION >= v"1.6"
             push!(test_exprs, :Bar, :h1)

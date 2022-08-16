@@ -25,12 +25,15 @@ function match_expr(pattern::Symbol, ex::Expr)
 end
 match_expr(pattern::Expr, ex) = false
 function match_expr(pattern::Expr, ex::Expr)
+    # test current expression
     ex_match = false
     if pattern.head === ex.head
         ex_match = true
         for sub_p in pattern.args
+            sub_p isa LineNumberNode && continue
             arg_match = false
             for arg in ex.args
+                arg isa LineNumberNode && continue
                 if match_expr(sub_p, arg)
                     arg_match = true
                     break
@@ -43,6 +46,7 @@ function match_expr(pattern::Expr, ex::Expr)
         end
     end
     ex_match && return true
+    # test sub expressions of ex
     for arg in ex.args
         match_expr(pattern, arg) && return true
     end
