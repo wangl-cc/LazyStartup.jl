@@ -22,9 +22,12 @@ end
         @test match_expr(:x, :(x + y))
         @test match_expr(:y, :(f(x) + g(y)))
         @test match_expr(:g, :(f(x) + g(y)))
+        @test match_expr(:(@test), :(@test x == y))
         @test !match_expr(:x, :y)
         @test !match_expr(:x, :(g(y)))
         @test !match_expr(:f, :(g(y)))
+        @test !match_expr(:(f(*, *)), :(f(x)))
+        @test !match_expr(:(@btime *, *), :(@btime x))
         @test match_expr(:(using *), :(using Test))
         @test match_expr(:(using *), :(using Test, LazyStartup))
         @test match_expr(:(using *), quote
