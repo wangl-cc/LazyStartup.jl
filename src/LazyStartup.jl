@@ -78,6 +78,13 @@ function auto_pattern(ex::Expr)
     elseif isexpr(ex, :macro)
         return Symbol("@$(_function_name(ex))")
     else
+        if !parse(Bool, get(ENV, "JULIA_LAZY_STARTUP_SILENT", "false"))
+            @info """
+            can't determine pattern automatically for expression: $ex;
+            it will be evaluated after any input in the REPL;
+            if you want to silence this info, set environment variable JULIA_LAZY_STARTUP_SILENT to true
+            """
+        end
         return :* # * is wildcard which donate any symbol
     end
 end
