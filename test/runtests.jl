@@ -22,6 +22,7 @@ end
         @test match_expr(:x, :(x + y))
         @test match_expr(:y, :(f(x) + g(y)))
         @test match_expr(:g, :(f(x) + g(y)))
+        @test match_expr(:(@test), :(@test x == y))
         @test !match_expr(:x, :y)
         @test !match_expr(:x, :(g(y)))
         @test !match_expr(:f, :(g(y)))
@@ -77,11 +78,13 @@ end
         @lazy_startup import Foo: h
         # issue #4
         @lazy_startup using BenchmarkTools Symbol("@btime")
+        @lazy_startup using Unitful @u_str
         @lazy_startup macro showall(expr)
             return quote
                 show(IOContext(stdout, :compact => false, :limit => false), "text/plain", $(esc(expr)))
             end
         end
+        @lazy_startup using Cthulhu @descend() @descend_code_typed() @descend_code_warntype()
         @static if VERSION >= v"1.6"
             @lazy_startup import Foo as Bar
             @lazy_startup import Foo: h as h1
@@ -90,7 +93,7 @@ end
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
         @test all(!is_evaled, STARTUPS)
         test_exprs = [
-            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(@showall 1)
+            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(u"bohr"), :(@showall 1), :(@descend f())
         ]
         @static if VERSION >= v"1.6"
             push!(test_exprs, :Bar, :h1)
