@@ -84,6 +84,7 @@ end
                 show(IOContext(stdout, :compact => false, :limit => false), "text/plain", $(esc(expr)))
             end
         end
+        @lazy_startup using Cthulhu @descend() @descend_code_typed() @descend_code_warntype()
         @static if VERSION >= v"1.6"
             @lazy_startup import Foo as Bar
             @lazy_startup import Foo: h as h1
@@ -92,7 +93,7 @@ end
         @test check_startup(Expr(:toplevel, :x)).args[1] == :x
         @test all(!is_evaled, STARTUPS)
         test_exprs = [
-            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(u"bohr"), :(@showall 1)
+            :f, :A, :(using Test), :g, :Foo, :h, :(@btime 1), :(u"bohr"), :(@showall 1), :(@descend f())
         ]
         @static if VERSION >= v"1.6"
             push!(test_exprs, :Bar, :h1)
