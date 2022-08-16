@@ -101,3 +101,5 @@ If pattern is not provided, patterns will be generated automatically.
 
 For other expressions, the pattern wildcard `*` will match anything,
 which means that the expression will evaluate after any input in the REPL.
+To avoid confusion, those expressions will show an info message,
+which can be silenced by set environment variable `JULIA_LAZY_STARTUP_SILENT` to `true`.
