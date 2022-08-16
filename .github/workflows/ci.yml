@@ -57,7 +57,7 @@ jobs:
           echo "using LazyStartup" > $HOME/.julia/config/startup.jl
       - name: Install Revise
         run: |
-          julia --startup-file=no  -e 'import Pkg; Pkg.add(["Revise"])'
+          julia --startup-file=no  -e "import Pkg; Pkg.add([\"Revise\"])"
       - name: Benchmark
         run: |
           julia --project=.  -e 'using Revise'
