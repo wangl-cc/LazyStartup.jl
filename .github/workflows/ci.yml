@@ -55,12 +55,12 @@ jobs:
         run: |
           mkdir -p $HOME/.julia/config
           echo "using LazyStartup" > $HOME/.julia/config/startup.jl
-      - name: Install and precompile Revise
+      - name: Install Revise
         run: |
           julia --startup-file=no  -e 'import Pkg; Pkg.add(["Revise"])'
-          julia --project=.  -e 'using Revise'
       - name: Benchmark
         run: |
+          julia --project=.  -e 'using Revise'
           time julia --project=. --startup-file=no -e 'using Revise'
           time julia --project=. -e '@lazy_startup using Revise using * import *'
           time julia --project=. --startup-file=no -e 'const FOO = 1'
