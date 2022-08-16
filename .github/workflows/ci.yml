@@ -64,3 +64,4 @@ jobs:
           time julia --project=. -e '@lazy_startup using Revise using * import *'
           time julia --project=. --startup-file=no -e 'const FOO = 1'
           time julia --project=. -e '@lazy_startup const FOO = 1'
+        shell: bash
