@@ -100,7 +100,7 @@ end
         end
         @test length(STARTUPS) == length(test_exprs)
         for expr in test_exprs
-            @test check_startup(Expr(:toplevel, expr)).args[1].args[1] == STARTUPS[1].ex
+            @test check_startup(Expr(:toplevel, expr)).args[1] == STARTUPS[1].ex
             @test is_evaled(STARTUPS[1])
             popfirst!(STARTUPS)
             @test all(!is_evaled, STARTUPS)
