@@ -115,15 +115,16 @@ const STARTUPS = []
 
 function check_startup(ex)
     isempty(STARTUPS) && return ex
-    startup_block = Expr(:block)
+    startup_block = Expr(:toplevel)
     for s in STARTUPS
         if should_eval(ex, s)
             push!(startup_block.args, s.ex)
             s.evaled = true
         end
     end
-    isempty(startup_block.args) || pushfirst!(ex.args, startup_block)
-    return ex
+    isempty(startup_block.args) && return ex
+    push!(startup_block.args, ex)
+    return startup_block
 end
 
 function collect_pattern(ps)
