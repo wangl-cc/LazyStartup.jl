@@ -3,7 +3,7 @@ module LazyStartup
 import REPL
 using Base.Meta: isexpr
 
-export @lazy_startup
+export @lazy_startup, lazy_startup_init!
 
 mutable struct Startup{F}
     ex::Expr
@@ -162,8 +162,27 @@ macro lazy_startup(ex, ps...)
     return startup
 end
 
-function __init__()
-    push!(REPL.repl_ast_transforms, check_startup)
+__current_ast_transforms() =
+    isdefined(Base, :active_repl_backend) ? Base.active_repl_backend.ast_transforms :
+    REPL.repl_ast_transforms
+
+"""
+    lazy_startup_init!()
+
+Initialize the REPL to use `LazyStartup`. This should be called in `~/.julia/config/startup.jl`.
+Like this:
+
+```julia
+using LazyStartup
+
+atreplinit() do repl
+    lazy_startup_init!()
 end
+```
+
+!!! Note
+    If you are using `ipython` mode, you should call `REPL.ipython_mode!(repl)` before`lazy_startup_init!()`.
+"""
+lazy_startup_init!() = push!(__current_ast_transforms(), check_startup)
 
 end # module

@@ -22,6 +22,10 @@ and can be delayed by `@lazy_startup`:
 ```julia
 using LazyStartup # NOTE: this package must be loaded in startup.jl
 
+atreplinit() do repl
+  lazy_startup_init!() # NOTE: this function must be called in atreplinit and after `REPL.ipython_mode!`
+end
+
 @lazy_startup using Revise import * using * include(*)
 
 @lazy_startup function f()
