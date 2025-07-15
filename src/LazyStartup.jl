@@ -163,8 +163,11 @@ macro lazy_startup(ex, ps...)
 end
 
 __current_ast_transforms() =
-    isdefined(Base, :active_repl_backend) ? Base.active_repl_backend.ast_transforms :
-    REPL.repl_ast_transforms
+    if isdefined(Base, :active_repl_backend) && Base.active_repl_backend !== nothing
+        Base.active_repl_backend.ast_transforms
+    else
+        REPL.repl_ast_transforms
+    end
 
 """
     lazy_startup_init!()
