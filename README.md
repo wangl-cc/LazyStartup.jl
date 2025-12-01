@@ -3,6 +3,7 @@
 [![Build Status](https://github.com/wangl-cc/LazyStartup.jl/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/wangl-cc/LazyStartup.jl/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/wangl-cc/LazyStartup.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/wangl-cc/LazyStartup.jl)
 [![GitHub](https://img.shields.io/github/license/wangl-cc/LazyStartup.jl)](https://github.com/wangl-cc/LazyStartup.jl/blob/master/LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwangl-cc%2FLazyStartup.jl.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwangl-cc%2FLazyStartup.jl?ref=badge_shield)
 
 A simple package provides a way to delay the execution of startup code until it is needed by REPL.
 It might be useful if loading `startup.jl` will take a long time.
@@ -114,3 +115,7 @@ which can be silenced by set environment variable `JULIA_LAZY_STARTUP_SILENT` to
 
 Besides, most of overhead causes by automatical parttern.
 Thus, specify all pattern manually may be helpful for startup time.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwangl-cc%2FLazyStartup.jl.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwangl-cc%2FLazyStartup.jl?ref=badge_large)
